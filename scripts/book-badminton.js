@@ -119,6 +119,10 @@ async function waitForManualLogin(page, timeoutMs) {
   );
 }
 
+function isSingpassUrl(url) {
+  return /login\.id\.singpass\.gov\.sg/i.test(url);
+}
+
 async function ensureLoggedIn(page, timeoutMs) {
   const isLoggedOut =
     (await page.getByRole("button", { name: /^Log in$/i }).first().isVisible().catch(() => false)) ||
@@ -178,7 +182,22 @@ async function selectTimes(page, times) {
     const label = formatTimeLabel(time);
     const checkbox = page.getByRole("checkbox", { name: new RegExp(`^${escapeForRegex(label)}$`, "i") }).first();
     await checkbox.waitFor({ state: "visible", timeout: 20_000 });
-    await checkbox.check();
+
+    if (await checkbox.isChecked().catch(() => false)) {
+      console.log(`Slot already selected: ${label}`);
+      continue;
+    }
+
+    try {
+      await checkbox.check({ force: true });
+    } catch (error) {
+      if (isSingpassUrl(page.url())) {
+        throw new Error(`Login was requested again while selecting ${label}. Complete Singpass login and rerun.`);
+      }
+
+      throw error;
+    }
+
     console.log(`Selected slot: ${label}`);
   }
 }
