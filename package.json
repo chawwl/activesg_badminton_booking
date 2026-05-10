@@ -1,0 +1,14 @@
+{
+  "name": "activesg_badminton_booking",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Semi-automated ActiveSG badminton court booking bot",
+  "type": "module",
+  "scripts": {
+    "book": "node scripts/book-badminton.js",
+    "check": "node --check scripts/book-badminton.js"
+  },
+  "dependencies": {
+    "playwright": "^1.54.0"
+  }
+}
